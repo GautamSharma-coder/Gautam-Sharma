@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Linkedin, Mail, ExternalLink, User, Code, Briefcase, GraduationCap, Moon, Sun, FileDown, Book } from 'lucide-react';
 
-const Portfolio = () => {
-  const [darkMode, setDarkMode] = useState(false);
+
+
+const Portfolio = ({ darkMode, setDarkMode }) => {
+  //const [darkMode, setDarkMode] = useState(false);
   const [isVisible, setIsVisible] = useState({});
 
   useEffect(() => {
@@ -113,53 +115,47 @@ const Portfolio = () => {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-50'} transition-colors duration-300`}>
-      {/* Navigation */}
-      <nav className={`fixed w-full z-50 ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg`}>
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <span className="text-xl font-bold">Gautam Sharma</span>
-            <div className="flex items-center space-x-6">
-              <div className="hidden md:flex space-x-4">
-                <a href="#about" className="hover:text-blue-600">About</a>
-                <a href="#projects" className="hover:text-blue-600">Projects</a>
-                <a href="#blog" className="hover:text-blue-600">Blog</a>
-                <a href="#experience" className="hover:text-blue-600">Experience</a>
-                <a href="#contact" className="hover:text-blue-600">Contact</a>
-              </div>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
+      {/* Navigation 
+     <nav
+  className={`fixed w-full z-50 ${
+    darkMode ? 'bg-gray-900 bg-opacity-80' : 'bg-white bg-opacity-70'
+  } shadow-lg backdrop-blur-md`}
+>
+  <div className="container mx-auto px-6 py-4">
+    <div className="flex justify-between items-center">
+      <span className="text-xl font-bold">Gautam Sharma</span>
+      <div className="flex items-center space-x-6">
+        <div className="hidden md:flex space-x-4">
+          <a href="#about" className="hover:text-blue-600">
+            About
+          </a>
+          <a href="#projects" className="hover:text-blue-600">
+            Projects
+          </a>
+          <a href="#blog" className="hover:text-blue-600">
+            Blog
+          </a>
+          <a href="#experience" className="hover:text-blue-600">
+            Experience
+          </a>
+          <a href="#contact" className="hover:text-blue-600">
+            Contact
+          </a>
         </div>
-      </nav>
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        >
+          {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+*/}
 
       {/* Hero Section */}
-      <header className={`pt-24 ${darkMode ? 'bg-gradient-to-r from-blue-900 to-indigo-900' : 'bg-gradient-to-r from-blue-600 to-indigo-700'} text-white`}>
-        <div className="container mx-auto px-6 py-24">
-          <div className="max-w-3xl opacity-0 animate-[fadeIn_1s_ease-in_forwards]">
-            <h1 className="text-5xl font-bold mb-6">Full Stack Developer</h1>
-            <p className="text-xl mb-8">Building beautiful, functional, and scalable web applications with modern technologies.</p>
-            <div className="flex space-x-4">
-              <a
-                href="#contact"
-                className="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-              >
-                Contact Me
-              </a>
-              <a
-                href="/resume.pdf"
-                className="border-2 border-white text-white px-6 py-2 rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors flex items-center gap-2"
-              >
-                <FileDown className="h-5 w-5" /> Download Resume
-              </a>
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* About Section */}
       <section
