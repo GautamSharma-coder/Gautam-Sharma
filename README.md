@@ -99,4 +99,4 @@ For any inquiries, feel free to reach out:
 
 - **Email**: [gautamksharma45@gmail.com](mailto:your-email@example.com)
 - **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/dbg-gautam-sharma)
-- **Portfolio**: [Your Portfolio Link](https://gautam-sharma-portfolio-kappa.vercel.app/)
+- **Portfolio**: [Your Portfolio Link](https://gautam-sharma-dev.vercel.app/)
