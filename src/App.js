@@ -19,7 +19,7 @@ const PROJECTS = [
     description:
       "Full-stack e-commerce solution with user auth, Stripe payments, and inventory management.",
     tech: ["React", "Node.js", "MongoDB", "Stripe"],
-    link: "#",
+    link: "#!",
     num: "01",
   },
   {
@@ -27,7 +27,7 @@ const PROJECTS = [
     description:
       "Real-time chat powered by AI with smart responses and live language translation.",
     tech: ["React", "Python", "TensorFlow", "WebSocket"],
-    link: "#",
+    link: "#!",
     num: "02",
   },
   {
@@ -35,7 +35,7 @@ const PROJECTS = [
     description:
       "Collaborative project tool with real-time updates and team collaboration features.",
     tech: ["React", "Firebase", "Redux", "Material-UI"],
-    link: "#",
+    link: "#!",
     num: "03",
   },
 ];
@@ -115,7 +115,7 @@ function useInView(threshold = 0.15) {
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]); // Added dependency to fix warning
   return [ref, inView];
 }
 
@@ -140,8 +140,7 @@ export default function Portfolio() {
   const [darkMode, setDarkMode] = useState(true);
   const [navHidden, setNavHidden] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Removed unused state variables: searchOpen, mobileMenuOpen
   const [heroVisible, setHeroVisible] = useState(false);
   const lastScroll = useRef(0);
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
@@ -181,7 +180,7 @@ export default function Portfolio() {
 
   const bg = d ? "#0a0e1a" : "#f5f5f0";
   const surface = d ? "#111827" : "#ffffff";
-  const surface2 = d ? "#1a2235" : "#f0ede8";
+  // Removed unused variable: surface2
   const text = d ? "#e8e4d9" : "#1a1a2e";
   const sub = d ? "#8892a4" : "#666";
   const accent = "#00e5b0";
@@ -623,7 +622,7 @@ export default function Portfolio() {
                 <div style={{ height: "1px", width: "60px", background: accent }} />
                 <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px, 5vw, 60px)", fontWeight: 900, letterSpacing: "-2px" }}>Projects</h2>
               </div>
-              <a href="#" style={{ fontSize: "13px", color: accent, fontWeight: 600, letterSpacing: "0.5px" }}>View All ↗</a>
+              <a href="#!" style={{ fontSize: "13px", color: accent, fontWeight: 600, letterSpacing: "0.5px" }}>View All ↗</a>
             </div>
           </AnimSection>
 
@@ -868,7 +867,7 @@ function ProjectRow({ project, accent, d, surface, text, sub, setCursorHover }) 
 function BlogCard({ post, d, accent, surface, text, sub, setCursorHover }) {
   return (
     <a
-      href="#"
+      href="#!"
       className="tilt-card"
       onMouseEnter={() => setCursorHover(true)}
       onMouseLeave={() => setCursorHover(false)}
