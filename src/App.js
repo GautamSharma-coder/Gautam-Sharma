@@ -115,7 +115,7 @@ function useInView(threshold = 0.15) {
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, [threshold]); // Added dependency to fix warning
+  }, [threshold]);
   return [ref, inView];
 }
 
@@ -140,8 +140,8 @@ export default function Portfolio() {
   const [darkMode, setDarkMode] = useState(true);
   const [navHidden, setNavHidden] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
-  // Removed unused state variables: searchOpen, mobileMenuOpen
   const [heroVisible, setHeroVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScroll = useRef(0);
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [cursorHover, setCursorHover] = useState(false);
@@ -153,7 +153,7 @@ export default function Portfolio() {
   useEffect(() => {
     const handleScroll = () => {
       const cur = window.scrollY;
-      setNavHidden(cur > lastScroll.current && cur > 80);
+      setNavHidden(cur > lastScroll.current && cur > 80 && !mobileMenuOpen);
       lastScroll.current = cur;
 
       const sections = NAV_LINKS.map((id) => document.getElementById(id)).filter(Boolean);
@@ -166,7 +166,7 @@ export default function Portfolio() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const move = (e) => {
@@ -177,10 +177,8 @@ export default function Portfolio() {
   }, []);
 
   const d = darkMode;
-
   const bg = d ? "#0a0e1a" : "#f5f5f0";
   const surface = d ? "#111827" : "#ffffff";
-  // Removed unused variable: surface2
   const text = d ? "#e8e4d9" : "#1a1a2e";
   const sub = d ? "#8892a4" : "#666";
   const accent = "#00e5b0";
@@ -207,24 +205,15 @@ export default function Portfolio() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${accent}55; border-radius: 2px; }
 
+        /* Custom Cursor styling */
         .cursor-dot {
-          width: 10px; height: 10px;
-          background: ${accent};
-          border-radius: 50%;
-          position: fixed;
-          pointer-events: none;
-          z-index: 9999;
-          transition: transform 0.15s ease, width 0.2s, height 0.2s, margin 0.2s;
+          width: 10px; height: 10px; background: ${accent}; border-radius: 50%; position: fixed;
+          pointer-events: none; z-index: 9999; transition: transform 0.15s ease, width 0.2s, height 0.2s;
           transform: translate(-50%, -50%);
         }
         .cursor-ring {
-          width: 36px; height: 36px;
-          border: 1.5px solid ${accent}88;
-          border-radius: 50%;
-          position: fixed;
-          pointer-events: none;
-          z-index: 9998;
-          transition: transform 0.35s ease, width 0.3s, height 0.3s, margin 0.3s;
+          width: 36px; height: 36px; border: 1.5px solid ${accent}88; border-radius: 50%; position: fixed;
+          pointer-events: none; z-index: 9998; transition: transform 0.35s ease, width 0.3s, height 0.3s;
           transform: translate(-50%, -50%);
         }
         .cursor-hover .cursor-dot { width: 6px; height: 6px; }
@@ -232,267 +221,175 @@ export default function Portfolio() {
 
         .nav-pill { 
           position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-          z-index: 100; 
-          transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+          z-index: 1000; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+          width: auto; max-width: 90vw;
         }
         .nav-pill.hidden { transform: translateX(-50%) translateY(-120%); opacity: 0; }
 
-        .hero-title span {
-          display: inline-block;
-          opacity: 0;
-          transform: translateY(60px);
-          animation: revealUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-        @keyframes revealUp {
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-14px) rotate(2deg); }
-          66% { transform: translateY(-8px) rotate(-2deg); }
-        }
+        .hero-title span { display: inline-block; opacity: 0; transform: translateY(60px); animation: revealUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-14px) rotate(2deg); } 66% { transform: translateY(-8px) rotate(-2deg); } }
         @keyframes spin-slow { to { transform: rotate(360deg); } }
-        @keyframes pulse-ring {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          70% { transform: scale(1.05); opacity: 0.3; }
-          100% { transform: scale(0.95); opacity: 0.7; }
-        }
-        @keyframes marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .skill-bar-fill {
-          height: 100%;
-          border-radius: 2px;
-          background: linear-gradient(90deg, ${accent}, ${accent}99);
-          transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
-        }
+        @keyframes pulse-ring { 0%, 100% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.05); opacity: 0.3; } }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        .skill-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, ${accent}, ${accent}99); transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
         .project-card:hover .project-num { color: ${accent}; }
         .project-card:hover { border-color: ${accent}55; }
         .tilt-card { transition: transform 0.3s ease; }
         .tilt-card:hover { transform: translateY(-6px) rotate(-0.5deg); }
         a { text-decoration: none; color: inherit; }
         input, textarea { font-family: inherit; }
-        .noise-overlay {
-          position: fixed; inset: 0; pointer-events: none; z-index: 1000;
-          opacity: 0.025;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 200px;
+        
+        .noise-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 200px; }
+
+        /* RESPONSIVE LAYOUT CLASSES */
+        .hero-layout { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 60px; }
+        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+        .project-card { display: grid; grid-template-columns: 80px 1fr auto; align-items: center; gap: 40px; padding: 32px 40px; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .desktop-nav-links { display: flex; gap: 4px; }
+        .mobile-menu-btn { display: none; background: transparent; border: none; color: ${text}; font-size: 24px; cursor: pointer; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+          .desktop-nav-links { display: none; }
+          .mobile-menu-btn { display: block; }
+          .nav-pill-inner { padding: 10px 16px !important; gap: 16px !important; width: 100%; justify-content: space-between; }
+          
+          .hero-layout { flex-direction: column; align-items: center; text-align: center; gap: 40px; }
+          .hero-buttons { justify-content: center; }
+          .hero-socials { display: none !important; } /* Hide floating side socials on mobile */
+          
+          .grid-2-cols { grid-template-columns: 1fr; gap: 40px; }
+          .contact-grid { grid-template-columns: 1fr; }
+          
+          .project-card { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 20px; padding: 24px 20px; }
+          .project-card .project-arrow { display: none; }
+          .project-card .project-tech { justify-content: center; }
+          
+          section { padding: 80px 6% !important; }
+        }
+
+        /* Disable custom cursor on touch devices to prevent sticking */
+        @media (pointer: coarse) {
+          .cursor-dot, .cursor-ring { display: none !important; }
+          .project-card:hover { transform: none; }
+          .tilt-card:hover { transform: none; }
         }
       `}</style>
 
-      {/* Noise Overlay */}
       <div className="noise-overlay" />
 
       {/* Custom Cursor */}
-      <div
-        className={`cursor-dot ${cursorHover ? "cursor-hover" : ""}`}
-        style={{ left: cursorPos.x, top: cursorPos.y }}
-      />
-      <div
-        className={`cursor-ring ${cursorHover ? "cursor-hover" : ""}`}
-        style={{ left: cursorPos.x, top: cursorPos.y }}
-      />
+      <div className={`cursor-dot ${cursorHover ? "cursor-hover" : ""}`} style={{ left: cursorPos.x, top: cursorPos.y }} />
+      <div className={`cursor-ring ${cursorHover ? "cursor-hover" : ""}`} style={{ left: cursorPos.x, top: cursorPos.y }} />
 
       {/* NAVBAR */}
-      <nav
-        className={`nav-pill ${navHidden ? "hidden" : ""}`}
-        onMouseEnter={() => setCursorHover(true)}
-        onMouseLeave={() => setCursorHover(false)}
-      >
-        <div
-          style={{
+      <nav className={`nav-pill ${navHidden ? "hidden" : ""}`} onMouseEnter={() => setCursorHover(true)} onMouseLeave={() => setCursorHover(false)}>
+        <div className="nav-pill-inner" style={{
             background: d ? "rgba(17,24,39,0.85)" : "rgba(255,255,255,0.85)",
             backdropFilter: "blur(20px)",
             border: `1px solid ${d ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-            borderRadius: "100px",
-            padding: "10px 24px",
-            display: "flex",
-            alignItems: "center",
-            gap: "32px",
+            borderRadius: "100px", padding: "10px 24px", display: "flex", alignItems: "center", gap: "32px",
             boxShadow: `0 20px 60px ${d ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.12)"}`,
-          }}
-        >
+        }}>
           <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "18px", letterSpacing: "-0.5px", color: accent }}>GS</span>
 
-          <div style={{ display: "flex", gap: "4px" }}>
+          <div className="desktop-nav-links">
             {NAV_LINKS.map((s) => (
-              <a
-                key={s}
-                href={`#${s}`}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "100px",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  letterSpacing: "0.3px",
+              <a key={s} href={`#${s}`} style={{
+                  padding: "6px 14px", borderRadius: "100px", fontSize: "13px", fontWeight: 500, letterSpacing: "0.3px",
                   color: activeSection === s ? (d ? "#0a0e1a" : "#fff") : sub,
                   background: activeSection === s ? accent : "transparent",
                   transition: "all 0.25s",
-                }}
-              >
+              }}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}
               </a>
             ))}
           </div>
 
-          <button
-            onClick={() => setDarkMode(!d)}
-            style={{
-              width: "32px", height: "32px",
-              borderRadius: "50%",
-              border: `1px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-              background: "transparent",
-              cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: text,
-              fontSize: "14px",
-            }}
-          >
-            {d ? "☀" : "●"}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button onClick={() => setDarkMode(!d)} style={{
+                width: "32px", height: "32px", borderRadius: "50%",
+                border: `1px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                color: text, fontSize: "14px",
+            }}>
+              {d ? "☀" : "●"}
+            </button>
+            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(true)}>
+              ☰
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* HERO */}
-      <header
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "120px 6% 80px",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background decorations */}
-        <div style={{
-          position: "absolute", top: "10%", right: "-5%",
-          width: "600px", height: "600px",
-          background: `radial-gradient(circle, ${accent}15 0%, transparent 70%)`,
-          borderRadius: "50%",
-          animation: "pulse-ring 4s ease-in-out infinite",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "5%", left: "-8%",
-          width: "400px", height: "400px",
-          background: `radial-gradient(circle, ${accent2}12 0%, transparent 70%)`,
-          borderRadius: "50%",
-        }} />
+      {/* MOBILE FULLSCREEN MENU */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 2000,
+        background: d ? "rgba(10, 14, 26, 0.98)" : "rgba(245, 245, 240, 0.98)",
+        backdropFilter: "blur(10px)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px",
+        opacity: mobileMenuOpen ? 1 : 0, pointerEvents: mobileMenuOpen ? "auto" : "none",
+        transition: "opacity 0.3s ease",
+      }}>
+        <button onClick={() => setMobileMenuOpen(false)} style={{
+          position: "absolute", top: "30px", right: "30px",
+          background: "transparent", border: "none", color: text, fontSize: "32px", cursor: "pointer"
+        }}>✕</button>
+        {NAV_LINKS.map((s) => (
+          <a key={s} href={`#${s}`} onClick={() => setMobileMenuOpen(false)} style={{
+            fontSize: "32px", fontFamily: "'Playfair Display', serif", fontWeight: 700,
+            color: activeSection === s ? accent : text, textTransform: "capitalize"
+          }}>
+            {s}
+          </a>
+        ))}
+      </div>
 
-        {/* Floating tag */}
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "8px",
-          background: `${accent}18`,
-          border: `1px solid ${accent}40`,
-          borderRadius: "100px",
-          padding: "6px 16px",
-          marginBottom: "40px",
-          width: "fit-content",
-          opacity: heroVisible ? 1 : 0,
-          transition: "opacity 0.6s ease 0.2s",
-        }}>
+      {/* HERO */}
+      <header style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "120px 6% 80px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "10%", right: "-5%", width: "600px", height: "600px", background: `radial-gradient(circle, ${accent}15 0%, transparent 70%)`, borderRadius: "50%", animation: "pulse-ring 4s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: "5%", left: "-8%", width: "400px", height: "400px", background: `radial-gradient(circle, ${accent2}12 0%, transparent 70%)`, borderRadius: "50%" }} />
+
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: `${accent}18`, border: `1px solid ${accent}40`, borderRadius: "100px", padding: "6px 16px", marginBottom: "40px", width: "fit-content", opacity: heroVisible ? 1 : 0, transition: "opacity 0.6s ease 0.2s" }}>
           <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: accent, animation: "blink 1.5s infinite" }} />
           <span style={{ fontSize: "12px", fontWeight: 500, color: accent, letterSpacing: "1px", textTransform: "uppercase" }}>Available for Work</span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "60px" }}>
+        <div className="hero-layout">
           <div style={{ maxWidth: "700px" }}>
             <div className="hero-title" style={{ marginBottom: "32px" }}>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(56px, 8vw, 110px)", fontWeight: 900, lineHeight: "0.95", letterSpacing: "-3px", color: text }}>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(48px, 8vw, 110px)", fontWeight: 900, lineHeight: "0.95", letterSpacing: "-3px", color: text }}>
                 <span style={{ animationDelay: "0.1s", display: "block" }}>Full</span>
                 <span style={{ animationDelay: "0.25s", display: "block", color: "transparent", WebkitTextStroke: `2px ${accent}` }}>Stack</span>
                 <span style={{ animationDelay: "0.4s", display: "block" }}>Dev.</span>
               </h1>
             </div>
 
-            <p style={{
-              fontSize: "17px", lineHeight: "1.7", color: sub, maxWidth: "480px", marginBottom: "48px",
-              opacity: heroVisible ? 1 : 0, transform: heroVisible ? "none" : "translateY(20px)",
-              transition: "all 0.7s ease 0.7s",
-            }}>
+            <p style={{ fontSize: "17px", lineHeight: "1.7", color: sub, maxWidth: "480px", marginBottom: "48px", opacity: heroVisible ? 1 : 0, transform: heroVisible ? "none" : "translateY(20px)", transition: "all 0.7s ease 0.7s" }}>
               Hi, I'm <strong style={{ color: text }}>Gautam Sharma</strong> — a full-stack developer crafting beautiful, scalable web experiences with modern technologies.
             </p>
 
-            <div style={{
-              display: "flex", gap: "16px", flexWrap: "wrap",
-              opacity: heroVisible ? 1 : 0, transition: "opacity 0.7s ease 0.9s",
-            }}>
-              <a
-                href="#contact"
-                onMouseEnter={() => setCursorHover(true)}
-                onMouseLeave={() => setCursorHover(false)}
-                style={{
-                  background: accent,
-                  color: "#0a0e1a",
-                  padding: "14px 32px",
-                  borderRadius: "100px",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  letterSpacing: "0.5px",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.boxShadow = `0 0 30px ${accent}60`; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}
-              >
-                Hire Me ↗
-              </a>
-              <a
-                href="/resume.pdf"
-                onMouseEnter={() => setCursorHover(true)}
-                onMouseLeave={() => setCursorHover(false)}
-                style={{
-                  border: `1.5px solid ${d ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
-                  color: text,
-                  padding: "14px 32px",
-                  borderRadius: "100px",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  transition: "border-color 0.2s",
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.borderColor = accent; }}
-                onMouseOut={(e) => { e.currentTarget.style.borderColor = d ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"; }}
-              >
-                ↓ Resume
-              </a>
+            <div className="hero-buttons" style={{ display: "flex", gap: "16px", flexWrap: "wrap", opacity: heroVisible ? 1 : 0, transition: "opacity 0.7s ease 0.9s" }}>
+              <a href="#contact" onMouseEnter={() => setCursorHover(true)} onMouseLeave={() => setCursorHover(false)} style={{ background: accent, color: "#0a0e1a", padding: "14px 32px", borderRadius: "100px", fontWeight: 700, fontSize: "14px", letterSpacing: "0.5px", transition: "transform 0.2s, box-shadow 0.2s" }}>Hire Me ↗</a>
+              <a href="/resume.pdf" onMouseEnter={() => setCursorHover(true)} onMouseLeave={() => setCursorHover(false)} style={{ border: `1.5px solid ${d ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`, color: text, padding: "14px 32px", borderRadius: "100px", fontWeight: 600, fontSize: "14px", transition: "border-color 0.2s" }}>↓ Resume</a>
             </div>
           </div>
 
-          {/* Avatar + Stats */}
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: "32px",
-            opacity: heroVisible ? 1 : 0, transition: "opacity 0.8s ease 0.5s",
-          }}>
-            {/* Profile image placeholder */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "32px", opacity: heroVisible ? 1 : 0, transition: "opacity 0.8s ease 0.5s" }}>
             <div style={{ position: "relative", animation: "float 6s ease-in-out infinite" }}>
-              <div style={{
-                width: "220px", height: "220px",
-                borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
-                background: `linear-gradient(135deg, ${accent}30, ${accent2}20)`,
-                border: `2px solid ${accent}40`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                overflow: "hidden",
-              }}>
-                <img src="/gautam.png" alt="Gautam" style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    e.currentTarget.parentElement.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:${accent};opacity:0.8">GS</span>`;
-                  }}
-                />
+              <div style={{ width: "220px", height: "220px", borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%", background: `linear-gradient(135deg, ${accent}30, ${accent2}20)`, border: `2px solid ${accent}40`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                <img src="/gautam.png" alt="Gautam" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:${accent};opacity:0.8">GS</span>`; }} />
               </div>
-              {/* Spinning ring */}
               <svg style={{ position: "absolute", inset: "-20px", animation: "spin-slow 20s linear infinite" }} width="260" height="260" viewBox="0 0 260 260">
                 <circle cx="130" cy="130" r="120" fill="none" stroke={`${accent}30`} strokeWidth="1" strokeDasharray="6 12" />
               </svg>
             </div>
 
-            {/* Stats */}
-            <div style={{ display: "flex", gap: "20px" }}>
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
               {[["5+", "Years Exp."], ["30+", "Projects"], ["100%", "Delivery"]].map(([num, label]) => (
                 <div key={label} style={{ textAlign: "center" }}>
                   <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 900, color: accent }}>{num}</div>
@@ -503,61 +400,22 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Social links */}
-        <div style={{
-          position: "absolute", right: "40px", top: "50%", transform: "translateY(-50%)",
-          display: "flex", flexDirection: "column", gap: "16px",
-          opacity: heroVisible ? 1 : 0, transition: "opacity 0.8s ease 1s",
-        }}>
+        <div className="hero-socials" style={{ position: "absolute", right: "40px", top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: "16px", opacity: heroVisible ? 1 : 0, transition: "opacity 0.8s ease 1s" }}>
           {[
             { icon: "⌂", href: "https://github.com/GautamSharma-coder", label: "gh" },
             { icon: "in", href: "https://linkedin.com", label: "li" },
             { icon: "✉", href: "mailto:gautamksharma45@gmail.com", label: "em" },
           ].map(({ icon, href, label }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              onMouseEnter={() => setCursorHover(true)}
-              onMouseLeave={() => setCursorHover(false)}
-              style={{
-                width: "36px", height: "36px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                borderRadius: "50%",
-                border: `1px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-                fontSize: "12px", fontWeight: 700,
-                color: sub,
-                transition: "all 0.2s",
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = accent; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"; e.currentTarget.style.color = sub; }}
-            >
+            <a key={label} href={href} target="_blank" rel="noreferrer" onMouseEnter={() => setCursorHover(true)} onMouseLeave={() => setCursorHover(false)} style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", border: `1px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, fontSize: "12px", fontWeight: 700, color: sub, transition: "all 0.2s" }} onMouseOver={(e) => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = accent; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"; e.currentTarget.style.color = sub; }}>
               {icon}
             </a>
           ))}
           <div style={{ width: "1px", height: "60px", background: `linear-gradient(to bottom, ${accent}50, transparent)`, margin: "0 auto" }} />
         </div>
-
-        {/* Scroll indicator */}
-        <div style={{
-          position: "absolute", bottom: "40px", left: "50%", transform: "translateX(-50%)",
-          display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
-          opacity: heroVisible ? 0.5 : 0, transition: "opacity 0.8s ease 1.2s",
-        }}>
-          <span style={{ fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", color: sub }}>Scroll</span>
-          <div style={{ width: "1px", height: "40px", background: `linear-gradient(to bottom, ${sub}, transparent)`, animation: "float 2s ease-in-out infinite" }} />
-        </div>
       </header>
 
       {/* MARQUEE TICKER */}
-      <div style={{
-        overflow: "hidden",
-        borderTop: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-        borderBottom: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-        padding: "16px 0",
-        background: d ? "#0d1220" : "#eae8e3",
-      }}>
+      <div style={{ overflow: "hidden", borderTop: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`, borderBottom: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`, padding: "16px 0", background: d ? "#0d1220" : "#eae8e3" }}>
         <div style={{ display: "flex", gap: "0", animation: "marquee 20s linear infinite", width: "max-content" }}>
           {[...Array(6)].flatMap(() =>
             ["React", "Node.js", "TypeScript", "Python", "MongoDB", "AWS", "Full Stack", "Freelancer", "Web Dev"].map((s, i) => (
@@ -580,7 +438,7 @@ export default function Portfolio() {
             </div>
           </AnimSection>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "start" }}>
+          <div className="grid-2-cols">
             <AnimSection delay={0.1}>
               <p style={{ fontSize: "18px", lineHeight: "1.8", color: sub, marginBottom: "32px" }}>
                 I'm a passionate full-stack developer with <strong style={{ color: text }}>5+ years of experience</strong> building web applications that are both beautiful and performant.
@@ -588,11 +446,11 @@ export default function Portfolio() {
               <p style={{ fontSize: "16px", lineHeight: "1.8", color: sub, marginBottom: "40px" }}>
                 I specialize in React, Node.js, and modern web technologies. I love transforming complex problems into elegant, user-friendly solutions.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "20px" }}>
                 {[["Email", "gautamksharma45@gmail.com"], ["Location", "India"], ["Availability", "Freelance / Full-time"], ["Experience", "5+ Years"]].map(([k, v]) => (
                   <div key={k}>
                     <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1.5px", color: accent, marginBottom: "4px" }}>{k}</div>
-                    <div style={{ fontSize: "14px", color: text, fontWeight: 500 }}>{v}</div>
+                    <div style={{ fontSize: "14px", color: text, fontWeight: 500, wordBreak: "break-all" }}>{v}</div>
                   </div>
                 ))}
               </div>
@@ -626,7 +484,7 @@ export default function Portfolio() {
             </div>
           </AnimSection>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {PROJECTS.map((p, i) => (
               <AnimSection key={p.title} delay={i * 0.1}>
                 <ProjectRow project={p} accent={accent} d={d} surface={surface} text={text} sub={sub} setCursorHover={setCursorHover} />
@@ -647,7 +505,7 @@ export default function Portfolio() {
             </div>
           </AnimSection>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "32px" }}>
             {BLOG_POSTS.map((post, i) => (
               <AnimSection key={post.title} delay={i * 0.1}>
                 <BlogCard post={post} d={d} accent={accent} surface={surface} text={text} sub={sub} setCursorHover={setCursorHover} />
@@ -669,22 +527,20 @@ export default function Portfolio() {
             </div>
           </AnimSection>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
             {TESTIMONIALS.map((t, i) => (
               <AnimSection key={t.name} delay={i * 0.1}>
                 <div className="tilt-card" style={{
                   background: surface,
                   border: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-                  borderRadius: "20px",
-                  padding: "36px",
+                  borderRadius: "20px", padding: "36px", height: "100%"
                 }}>
                   <div style={{ fontSize: "36px", color: accent, marginBottom: "20px", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>"</div>
                   <p style={{ color: sub, lineHeight: "1.7", marginBottom: "28px", fontSize: "15px" }}>{t.content}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                     <div style={{
                       width: "44px", height: "44px", borderRadius: "50%",
-                      background: `linear-gradient(135deg, ${accent}40, ${accent2}30)`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: `linear-gradient(135deg, ${accent}40, ${accent2}30)`, display: "flex", alignItems: "center", justifyContent: "center",
                       fontWeight: 800, fontSize: "13px", color: accent,
                     }}>
                       {t.initials}
@@ -720,8 +576,7 @@ export default function Portfolio() {
                   <div style={{
                     position: "absolute", left: "-40px", top: "6px",
                     width: "16px", height: "16px", borderRadius: "50%",
-                    border: `2px solid ${accent}`,
-                    background: d ? "#0a0e1a" : "#f5f5f0",
+                    border: `2px solid ${accent}`, background: d ? "#0a0e1a" : "#f5f5f0",
                   }} />
                   <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
                     <h3 style={{ fontSize: "22px", fontWeight: 700 }}>{exp.role}</h3>
@@ -751,34 +606,25 @@ export default function Portfolio() {
 
           <AnimSection delay={0.2}>
             <div style={{
-              background: surface,
-              border: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-              borderRadius: "24px",
-              padding: "48px",
+              background: surface, border: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+              borderRadius: "24px", padding: "48px 6%",
             }}>
-              <ContactForm accent={accent} d={d} surface={surface} text={text} sub={sub} setCursorHover={setCursorHover} />
+              <ContactForm accent={accent} d={d} text={text} setCursorHover={setCursorHover} />
             </div>
           </AnimSection>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{
-        padding: "60px 6%",
-        borderTop: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "24px",
-      }}>
+      <footer style={{ padding: "60px 6%", borderTop: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "24px" }}>
         <div>
           <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "22px", color: accent }}>Gautam Sharma</span>
           <p style={{ color: sub, fontSize: "13px", marginTop: "4px" }}>Full Stack Developer & Freelancer</p>
         </div>
         <p style={{ color: sub, fontSize: "13px" }}>© 2024 Gautam Sharma. Crafted with care.</p>
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           {[["GitHub", "https://github.com/GautamSharma-coder"], ["LinkedIn", "https://linkedin.com"], ["Email", "mailto:gautamksharma45@gmail.com"]].map(([label, href]) => (
-            <a key={label} href={href} style={{ fontSize: "13px", color: sub, transition: "color 0.2s" }}
-              onMouseOver={(e) => e.currentTarget.style.color = accent}
-              onMouseOut={(e) => e.currentTarget.style.color = sub}
-            >{label}</a>
+            <a key={label} href={href} style={{ fontSize: "13px", color: sub, transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color = accent} onMouseOut={(e) => e.currentTarget.style.color = sub}>{label}</a>
           ))}
         </div>
       </footer>
@@ -801,7 +647,7 @@ function SkillBar({ skill, accent, d, delay }) {
   );
 }
 
-function ProjectRow({ project, accent, d, surface, text, sub, setCursorHover }) {
+function ProjectRow({ project, accent, d, surface, sub, setCursorHover }) {
   const [hovered, setHovered] = useState(false);
   return (
     <a
@@ -810,75 +656,42 @@ function ProjectRow({ project, accent, d, surface, text, sub, setCursorHover }) 
       onMouseEnter={() => { setHovered(true); setCursorHover(true); }}
       onMouseLeave={() => { setHovered(false); setCursorHover(false); }}
       style={{
-        display: "grid",
-        gridTemplateColumns: "80px 1fr auto",
-        alignItems: "center",
-        gap: "40px",
-        padding: "32px 40px",
         background: hovered ? surface : "transparent",
         border: `1px solid ${hovered ? (d ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)") : "transparent"}`,
-        borderRadius: "16px",
-        transition: "all 0.3s ease",
-        cursor: "pointer",
+        borderRadius: "16px", transition: "all 0.3s ease", cursor: "pointer",
       }}
     >
-      <span className="project-num" style={{
-        fontFamily: "'Playfair Display', serif",
-        fontSize: "42px", fontWeight: 900,
-        color: hovered ? accent : (d ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"),
-        transition: "color 0.3s",
-        lineHeight: 1,
-      }}>{project.num}</span>
+      <span className="project-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "42px", fontWeight: 900, color: hovered ? accent : (d ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"), transition: "color 0.3s", lineHeight: 1 }}>
+        {project.num}
+      </span>
 
       <div>
         <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "8px" }}>{project.title}</h3>
         <p style={{ color: sub, fontSize: "14px", lineHeight: "1.6", marginBottom: "16px" }}>{project.description}</p>
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        <div className="project-tech" style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {project.tech.map((t) => (
-            <span key={t} style={{
-              padding: "4px 12px",
-              borderRadius: "100px",
-              fontSize: "11px",
-              fontWeight: 600,
-              letterSpacing: "0.5px",
-              textTransform: "uppercase",
-              background: `${accent}18`,
-              color: accent,
-              border: `1px solid ${accent}30`,
-            }}>{t}</span>
+            <span key={t} style={{ padding: "4px 12px", borderRadius: "100px", fontSize: "11px", fontWeight: 600, letterSpacing: "0.5px", textTransform: "uppercase", background: `${accent}18`, color: accent, border: `1px solid ${accent}30` }}>{t}</span>
           ))}
         </div>
       </div>
 
-      <div style={{
-        width: "48px", height: "48px",
-        borderRadius: "50%",
-        border: `1.5px solid ${hovered ? accent : (d ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)")}`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: "18px",
-        transform: hovered ? "rotate(45deg)" : "rotate(0deg)",
-        transition: "all 0.3s ease",
-        color: hovered ? accent : sub,
+      <div className="project-arrow" style={{
+        width: "48px", height: "48px", borderRadius: "50%",
+        border: `1.5px solid ${hovered ? accent : (d ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)")}`, display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: "18px", transform: hovered ? "rotate(45deg)" : "rotate(0deg)", transition: "all 0.3s ease", color: hovered ? accent : sub,
       }}>↗</div>
     </a>
   );
 }
 
-function BlogCard({ post, d, accent, surface, text, sub, setCursorHover }) {
+function BlogCard({ post, d, accent, surface, sub, setCursorHover }) {
   return (
     <a
       href="#!"
       className="tilt-card"
       onMouseEnter={() => setCursorHover(true)}
       onMouseLeave={() => setCursorHover(false)}
-      style={{
-        display: "block",
-        background: surface,
-        border: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-        borderRadius: "20px",
-        padding: "32px",
-        transition: "transform 0.3s ease, box-shadow 0.3s",
-      }}
+      style={{ display: "block", background: surface, border: `1px solid ${d ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`, borderRadius: "20px", padding: "32px", transition: "transform 0.3s ease, box-shadow 0.3s", height: "100%" }}
       onMouseOver={(e) => { e.currentTarget.style.boxShadow = `0 20px 60px ${d ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.08)"}`; }}
       onMouseOut={(e) => { e.currentTarget.style.boxShadow = "none"; }}
     >
@@ -895,74 +708,33 @@ function BlogCard({ post, d, accent, surface, text, sub, setCursorHover }) {
   );
 }
 
-function ContactForm({ accent, d, surface, text, sub, setCursorHover }) {
+function ContactForm({ accent, d, text, setCursorHover }) {
   const inputStyle = {
-    width: "100%",
-    padding: "14px 18px",
-    borderRadius: "12px",
-    border: `1.5px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-    background: d ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-    color: text,
-    fontSize: "15px",
-    outline: "none",
-    transition: "border-color 0.2s",
-    fontFamily: "inherit",
+    width: "100%", padding: "14px 18px", borderRadius: "12px", border: `1.5px solid ${d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+    background: d ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", color: text, fontSize: "15px", outline: "none", transition: "border-color 0.2s", fontFamily: "inherit",
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+      <div className="contact-grid">
         <div>
           <label style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.5px", color: accent, marginBottom: "8px" }}>Name</label>
-          <input type="text" placeholder="Gautam Sharma" style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = accent}
-            onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-          />
+          <input type="text" placeholder="Gautam Sharma" style={inputStyle} onFocus={(e) => e.target.style.borderColor = accent} onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} />
         </div>
         <div>
           <label style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.5px", color: accent, marginBottom: "8px" }}>Email</label>
-          <input type="email" placeholder="hello@example.com" style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = accent}
-            onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-          />
+          <input type="email" placeholder="hello@example.com" style={inputStyle} onFocus={(e) => e.target.style.borderColor = accent} onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} />
         </div>
       </div>
       <div>
         <label style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.5px", color: accent, marginBottom: "8px" }}>Subject</label>
-        <input type="text" placeholder="Project Inquiry" style={inputStyle}
-          onFocus={(e) => e.target.style.borderColor = accent}
-          onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-        />
+        <input type="text" placeholder="Project Inquiry" style={inputStyle} onFocus={(e) => e.target.style.borderColor = accent} onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} />
       </div>
       <div>
         <label style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.5px", color: accent, marginBottom: "8px" }}>Message</label>
-        <textarea placeholder="Tell me about your project..." rows={5} style={{ ...inputStyle, resize: "vertical" }}
-          onFocus={(e) => e.target.style.borderColor = accent}
-          onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-        />
+        <textarea placeholder="Tell me about your project..." rows={5} style={{ ...inputStyle, resize: "vertical" }} onFocus={(e) => e.target.style.borderColor = accent} onBlur={(e) => e.target.style.borderColor = d ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} />
       </div>
-      <button
-        onMouseEnter={() => setCursorHover(true)}
-        onMouseLeave={() => setCursorHover(false)}
-        style={{
-          background: accent,
-          color: "#0a0e1a",
-          border: "none",
-          padding: "16px 40px",
-          borderRadius: "100px",
-          fontWeight: 800,
-          fontSize: "14px",
-          letterSpacing: "1px",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          alignSelf: "flex-start",
-          transition: "transform 0.2s, box-shadow 0.2s",
-        }}
-        onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.boxShadow = `0 0 40px ${accent}60`; }}
-        onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}
-      >
-        Send Message ↗
-      </button>
+      <button onMouseEnter={() => setCursorHover(true)} onMouseLeave={() => setCursorHover(false)} style={{ background: accent, color: "#0a0e1a", border: "none", padding: "16px 40px", borderRadius: "100px", fontWeight: 800, fontSize: "14px", letterSpacing: "1px", textTransform: "uppercase", cursor: "pointer", alignSelf: "flex-start", transition: "transform 0.2s, box-shadow 0.2s" }} onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.boxShadow = `0 0 40px ${accent}60`; }} onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}>Send Message ↗</button>
     </div>
   );
 }
