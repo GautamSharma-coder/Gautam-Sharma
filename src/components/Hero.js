@@ -108,7 +108,7 @@ const PortfolioHero = ({ darkMode ,setDarkMode}) => {
                 <div className="absolute inset-4 bg-gradient-to-r from-blue-300 to-purple-300 rounded-full opacity-30 animate-pulse"></div>
               </motion.div>
               <img
-                src="/gautam.png"
+                src="/gk.png"
                 alt="Developer"
                 className="absolute inset-8 rounded-full object-cover border-4 border-white/50 shadow-2xl w-80 h-80"
               />
