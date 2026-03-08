@@ -382,7 +382,7 @@ export default function Portfolio() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "32px", opacity: heroVisible ? 1 : 0, transition: "opacity 0.8s ease 0.5s" }}>
             <div style={{ position: "relative", animation: "float 6s ease-in-out infinite" }}>
               <div style={{ width: "220px", height: "220px", borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%", background: `linear-gradient(135deg, ${accent}30, ${accent2}20)`, border: `2px solid ${accent}40`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                <img src="/gautam.png" alt="Gautam" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:${accent};opacity:0.8">GS</span>`; }} />
+                <img src="/gk.png" alt="Gautam" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:${accent};opacity:0.8">GS</span>`; }} />
               </div>
               <svg style={{ position: "absolute", inset: "-20px", animation: "spin-slow 20s linear infinite" }} width="260" height="260" viewBox="0 0 260 260">
                 <circle cx="130" cy="130" r="120" fill="none" stroke={`${accent}30`} strokeWidth="1" strokeDasharray="6 12" />
