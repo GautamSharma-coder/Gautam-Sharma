@@ -29,7 +29,7 @@ const PROJECTS = [
       "AI-powered Bihar tourism companion with personalized itineraries, AR heritage overlays, village homestay bookings, real-time travel updates, and dynamic destination content.",
     tech: ["AI", "AR", "React", "Full Stack"],
     link: "https://biharyaatra.com/",
-    status: "Live",
+    status: "In Development",
     num: "02",
   },
   {
