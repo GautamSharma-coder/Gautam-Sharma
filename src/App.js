@@ -15,28 +15,40 @@ const SKILLS = [
 
 const PROJECTS = [
   {
-    title: "E-Commerce Platform",
+    title: "Festiverse'26",
     description:
-      "Full-stack e-commerce solution with user auth, Stripe payments, and inventory management.",
-    tech: ["React", "Node.js", "MongoDB", "Stripe"],
-    link: "#!",
+      "Digital infrastructure platform for UDAAN Cultural Club's annual festival, covering event discovery, student registration, secure payments, UTR verification, and coordinator operations.",
+    tech: ["React", "Node.js", "Payment Gateway", "Admin Dashboard"],
+    link: "https://udaangecsamastipur.in/",
+    status: "Live",
     num: "01",
   },
   {
-    title: "AI Chat Application",
+    title: "Bihar Yaatra",
     description:
-      "Real-time chat powered by AI with smart responses and live language translation.",
-    tech: ["React", "Python", "TensorFlow", "WebSocket"],
-    link: "#!",
+      "AI-powered Bihar tourism companion with personalized itineraries, AR heritage overlays, village homestay bookings, real-time travel updates, and dynamic destination content.",
+    tech: ["AI", "AR", "React", "Full Stack"],
+    link: "https://biharyaatra.com/",
+    status: "Live",
     num: "02",
   },
   {
-    title: "Task Management System",
+    title: "LaunchLog",
     description:
-      "Collaborative project tool with real-time updates and team collaboration features.",
-    tech: ["React", "Firebase", "Redux", "Material-UI"],
+      "Developer-centric documentation platform for indie hackers and SaaS founders to track public progress, organize launch narratives, and share transparent product updates.",
+    tech: ["React", "TailwindCSS", "SaaS", "Documentation"],
     link: "#!",
+    status: "In Development",
     num: "03",
+  },
+  {
+    title: "Elite Associate",
+    description:
+      "Responsive business website built with a clean front-end stack, focused on clear service presentation, fast loading, and polished user experience.",
+    tech: ["HTML", "JavaScript", "TailwindCSS"],
+    link: "https://eliteassociates.vercel.app/",
+    status: "Live",
+    num: "04",
   },
 ];
 
@@ -649,6 +661,7 @@ function SkillBar({ skill, accent, d, delay }) {
 
 function ProjectRow({ project, accent, d, surface, sub, setCursorHover }) {
   const [hovered, setHovered] = useState(false);
+  const statusTone = project.status === "Live" ? accent : "#ff6b35";
   return (
     <a
       href={project.link}
@@ -666,7 +679,24 @@ function ProjectRow({ project, accent, d, surface, sub, setCursorHover }) {
       </span>
 
       <div>
-        <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "8px" }}>{project.title}</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "8px" }}>
+          <h3 style={{ fontSize: "22px", fontWeight: 700 }}>{project.title}</h3>
+          {project.status && (
+            <span style={{
+              padding: "4px 10px",
+              borderRadius: "100px",
+              fontSize: "10px",
+              fontWeight: 800,
+              letterSpacing: "0.7px",
+              textTransform: "uppercase",
+              color: statusTone,
+              background: `${statusTone}18`,
+              border: `1px solid ${statusTone}35`,
+            }}>
+              {project.status}
+            </span>
+          )}
+        </div>
         <p style={{ color: sub, fontSize: "14px", lineHeight: "1.6", marginBottom: "16px" }}>{project.description}</p>
         <div className="project-tech" style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {project.tech.map((t) => (
