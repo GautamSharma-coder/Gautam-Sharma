@@ -1,116 +1,89 @@
-import { useState, useEffect } from 'react';
-import { Sun, Moon, Search } from 'lucide-react'; // Add icons for dark mode and search
+import { useState, useEffect, useRef } from 'react';
 
-const Navbar = ({ darkMode, setDarkMode }) => {
-  const [searchOpen, setSearchOpen] = useState(false);
+const NAV_LINKS = ["about", "projects", "blog", "experience", "contact"];
+
+export default function Navbar() {
   const [hidden, setHidden] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const lastScroll = useRef(0);
 
   useEffect(() => {
-    let lastScroll = 0;
-
+    let frame = 0;
     const handleScroll = () => {
-      const currentScroll = window.pageYOffset;
-      if (currentScroll > lastScroll) {
-        setHidden(true); // Hide navbar on scroll down
-      } else {
-        setHidden(false); // Show navbar on scroll up
-      }
-      lastScroll = currentScroll;
-    };
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const cur = window.scrollY;
+        const nextHidden = cur > lastScroll.current && cur > 80 && !mobileOpen;
+        lastScroll.current = cur;
+        setHidden((value) => value === nextHidden ? value : nextHidden);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+        const sections = NAV_LINKS
+          .map((id) => document.getElementById(id))
+          .filter(Boolean);
+        let nextActive = '';
+        for (const section of sections) {
+          if (cur >= section.offsetTop - 140) nextActive = section.id;
+        }
+        setActiveSection((value) => value === nextActive ? value : nextActive);
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [mobileOpen]);
 
   return (
-    <nav
-      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-transform duration-500 ${
-        hidden ? '-translate-y-full' : 'translate-y-0'
-      } ${
-        darkMode ? 'bg-gray-900 bg-opacity-80 text-white' : 'bg-white bg-opacity-70 text-black'
-      } shadow-2xl backdrop-blur-md rounded-lg w-full max-w-7xl mx-auto px-6 py-4`}
-    >
-      <div className="flex justify-between items-center w-full">
-        {/* Logo Section */}
-        <div className="flex-1 flex justify-start">
-          <span className="text-xl font-bold">GS</span>
-        </div>
+    <>
+      <nav className={`editorial-nav ${hidden ? 'nav-hidden' : ''}`}>
+        {/* Logo */}
+        <a href="#hero" className="nav-logo">GS</a>
 
-        {/* Navigation Links */}
-        <div className="flex-1 flex justify-center space-x-6 items-center">
-          {['about', 'projects', 'blog', 'experience', 'contact'].map(
-            (section) => (
-              <a
-                key={section}
-                href={`#${section}`}
-                className={`relative hover:text-blue-600 transition ${
-                  activeSection === section ? 'text-blue-600' : ''
-                }`}
-              >
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-                {/* Animated underline */}
-                <span
-                  className={`absolute bottom-0 left-0 h-1 w-full transform ${
-                    activeSection === section ? 'scale-x-100' : 'scale-x-0'
-                  } bg-blue-600 transition-transform duration-300`}
-                ></span>
-              </a>
-            )
-          )}
-        </div>
-
-        {/* Utility Section */}
-        <div className="flex items-center space-x-4">
-          {/* Search Bar */}
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-          {searchOpen && (
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-white px-4 py-2 rounded-full w-64"
-            />
-          )}
-
-          {/* User Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        {/* Desktop Links */}
+        <div className="nav-links">
+          {NAV_LINKS.map((s) => (
+            <a
+              key={s}
+              href={`#${s}`}
+              className={`nav-link ${activeSection === s ? 'active' : ''}`}
             >
-              <span className="text-sm">User</span>
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-xl rounded-lg p-2">
-                <ul>
-                  <li className="py-2 px-4 hover:bg-blue-500 hover:text-white cursor-pointer">
-                    Profile
-                  </li>
-                  <li className="py-2 px-4 hover:bg-blue-500 hover:text-white cursor-pointer">
-                    Logout
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </a>
+          ))}
+        </div>
 
-          {/* Dark Mode Toggle */}
+        {/* Actions */}
+        <div className="nav-actions">
+          <a href="#contact" className="btn-outline" style={{ padding: '8px 24px', fontSize: '12px' }}>
+            Let's Talk
+          </a>
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="mobile-menu-btn"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
           >
-            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            ☰
           </button>
         </div>
-      </div>
-    </nav>
-  );
-};
+      </nav>
 
-export default Navbar;
+      {/* Mobile Fullscreen Menu */}
+      <div className={`mobile-overlay ${mobileOpen ? 'open' : ''}`}>
+        <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close menu">✕</button>
+        {NAV_LINKS.map((s) => (
+          <a
+            key={s}
+            href={`#${s}`}
+            className={activeSection === s ? 'active' : ''}
+            onClick={() => setMobileOpen(false)}
+          >
+            {s}
+          </a>
+        ))}
+      </div>
+    </>
+  );
+}
