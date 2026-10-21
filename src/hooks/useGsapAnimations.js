@@ -232,8 +232,6 @@ export default function useGsapAnimations(rootRef) {
       // ─── EXPERIENCE TIMELINE — LINE DRAW + ITEMS ────────────────────
       const timeline = document.querySelector(".timeline");
       if (timeline) {
-        const timelineLine = timeline.querySelector("::before");
-
         // Animate the pseudo-element via a custom CSS variable
         gsap.fromTo(
           timeline,
