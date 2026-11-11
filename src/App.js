@@ -57,6 +57,15 @@ const PROJECTS = [
     status: "Live",
     num: "04",
   },
+  {
+    title: "DevAuthKit",
+    description:
+      "Plug-and-play authentication service for Express.js applications, bringing together login, JWT, session handling, and email OTP flows.",
+    tech: ["Express.js", "JWT", "Sessions", "Email OTP"],
+    link: "https://github.com/GautamSharma-coder/devauthkit",
+    status: "Open Source",
+    num: "05",
+  },
 ];
 
 const BLOG_POSTS = [
@@ -368,8 +377,8 @@ export default function Portfolio() {
             <h2 className="section-title" style={{ marginBottom: "12px" }}>
               {"What People Say"}
             </h2>
-            <p style={{
-              color: "#7a6b5a", fontSize: "16px",
+            <p className="testimonial-subtitle" style={{
+              fontSize: "16px",
               fontFamily: "'Georgia', serif", fontStyle: "italic"
             }}>
               {"Kind words from clients and collaborators"}
@@ -508,7 +517,11 @@ function SectionHeader({ num, title, subtitle }) {
       <div className="section-line" />
       <div>
         <h2 className="section-title">{title}</h2>
-        {subtitle && <div className="section-subtitle">{subtitle}</div>}
+        {subtitle && (
+          <div className={`section-subtitle${["who I am", "selected works", "thoughts & insights"].includes(subtitle) ? " section-subtitle-projects" : ""}`}>
+            {subtitle}
+          </div>
+        )}
       </div>
     </motion.div>
   );

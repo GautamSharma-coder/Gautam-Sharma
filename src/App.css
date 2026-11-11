@@ -1029,6 +1029,8 @@ body { background: var(--paper); color: var(--ink); }
 .section-header { margin-bottom: clamp(38px, 5vw, 62px); gap: 16px; }
 .section-title { color: var(--ink); letter-spacing: -.055em; }
 .section-subtitle { color: var(--muted-ink); font-family: 'Rckybilly', cursive; font-size: 13px; letter-spacing: .04em; }
+.section-subtitle-projects { color: #a53227; }
+.testimonial-subtitle { color: #a53227; }
 .section-num { font-size: 11px; }
 .section-line { width: clamp(32px, 5vw, 62px); }
 .grid-2 { gap: clamp(36px, 7vw, 90px); }
