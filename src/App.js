@@ -226,18 +226,7 @@ export default function Portfolio() {
       <Navbar />
       <HeroPoster />
 
-      {/* ═══ MARQUEE TICKER ═══ */}
-      <div className="marquee-wrap">
-        <div className="marquee-track">
-          {[...Array(6)].flatMap((_, rep) =>
-            MARQUEE_ITEMS.map((item, i) => (
-              <span className="marquee-item" key={`${rep}-${i}`}>
-                {item} <span className="marquee-dot">✦</span>
-              </span>
-            ))
-          )}
-        </div>
-      </div>
+      {/* ═══ ABOUT ═══ */}
 
       {/* ═══ ABOUT ═══ */}
       <section id="about" className="section">
